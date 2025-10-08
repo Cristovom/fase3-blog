@@ -1,27 +1,41 @@
-version: "3.9"
-
 services:
   mongo:
-    image: mongo
-    container_name: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
+    image: mongo:6
+    ports: ["27017:27017"]
+    volumes: [mongo_data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
 
-  api:
-    build: .
-    container_name: blog-api
-    ports:
-      - "3000:3000"
+  blog-api:
+    build: ./backend
+    ports: ["3000:3000"]
     environment:
-      - MONGO_URI=mongodb://mongo:27017/fase2blog
+      - NODE_ENV=production
       - PORT=3000
+      - MONGO_URI=mongodb://mongo:27017/fase3blog
+      - JWT_SECRET=troque-esta-chave
+      - TEACHER_EMAIL=prof@fiap.com
+      - TEACHER_PASSWORD=123456
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     volumes:
-      - .:/app
+      - ./backend:/app
       - /app/node_modules
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=http://blog-api:3000
+    ports: ["5173:80"]
+    depends_on:
+      - blog-api
 
 volumes:
   mongo_data:

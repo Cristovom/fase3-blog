@@ -1,0 +1,39 @@
+name: Testes com cobertura
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v3
+
+      - name: 🟢 Instalar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📦 Instalar dependências
+        run: npm install
+
+      - name: ✅ Rodar testes com cobertura
+        run: npm test
+        env:
+          MONGO_URI: mongodb://localhost:27017/fase3-fullstack

@@ -1,0 +1,74 @@
+MongoDB - Mais rápido de montar por ser NoSQL e exigir menos estruturação de dados.
+
+curl -X PUT http://localhost:3000/posts/6892a6287bca0517e73801fd \
+  -H 'Content-Type: application/json' \
+  -d '{"titulo":"Post atualizado","conteudo":"Novo conteudo","autor":"Prof. Maria"}'
+
+curl -X POST http://localhost:3000/posts \
+  -H 'Content-Type: application/json' \
+  -d '{"titulo":"Titulo teste para apagar","conteudo":"Conteudo teste para apagar o item","autor":"Professor Cristovom"}'
+
+curl -X DELETE http://localhost:3000/posts/6892a8497bca0517e738020b
+
+
+1. Arquitetura do Sistema
+A aplicação foi desenvolvida utilizando a arquitetura MVC (Model-View-Controller), com separação clara de responsabilidades:
+src/
+models/ → definição dos esquemas de dados (Post)
+controllers/ → lógica de negócio e controle das requisições
+routes/ → definição das rotas da API
+index.js → ponto de entrada e configuração do servidor Express
+O banco de dados utilizado foi o MongoDB, com abstração via Mongoose.
+A aplicação foi totalmente containerizada com Docker, permitindo a execução da API e do banco de dados de forma unificada por meio do Docker Compose.
+
+
+2. Uso da Aplicação
+A API fornece os seguintes recursos:
+Criação de postagens para professores
+Edição, exclusão e visualização de postagens
+Busca por palavra-chave
+API RESTful com respostas em JSON
+Testes automatizados com Jest e Supertest
+Automação de CI com GitHub Actions
+
+Rotas implementadas:
+GET /posts
+GET /posts/:id
+GET /posts/search?q=
+POST /posts
+PUT /posts/:id
+DELETE /posts/:id
+A aplicação pode ser executada localmente com Node.js ou através de containers Docker. Os testes de cobertura foram automatizados e atingem mais de 20% do código.
+
+
+3. Experiências e Desafios
+O primeiro desafio foi configurar o ambiente local de forma funcional com o MongoDB, especialmente tratando conflitos entre IPv4 e IPv6 na URI de conexão.
+Em seguida, foi necessário entender como estruturar a aplicação de forma modular, organizando as rotas, controllers e modelos de forma clara.
+A integração com o MongoDB Atlas foi considerada, mas optou-se por usar o banco local para foco total na execução em containers.
+O maior aprendizado foi a criação do ambiente Docker e o uso do docker-compose para orquestrar API e banco.
+O uso do GitHub Actions trouxe uma visão clara de como pipelines CI/CD funcionam na prática, e como validar código antes do deploy.
+O projeto foi desenvolvido individualmente, o que exigiu planejamento e disciplina na organização de cada etapa.
+
+
+4. Exemplos práticos de uso (via curl)
+
+Criar post:
+curl -X POST http://localhost:3000/posts \
+  -H 'Content-Type: application/json' \
+  -d '{"titulo":"Titulo teste para apagar","conteudo":"Conteudo teste para apagar o item","autor":"Professor Cristovom"}'
+
+Atualizar post:
+curl -X PUT http://localhost:3000/posts/6892a6287bca0517e73801fd \
+  -H 'Content-Type: application/json' \
+  -d '{"titulo":"Post atualizado","conteudo":"Novo conteudo","autor":"Prof. Maria"}'
+
+Deletar post:
+curl -X DELETE http://localhost:3000/posts/6892a8497bca0517e738020b
+
+Buscar por palavra-chave:
+curl "http://localhost:3000/posts/search?q=professor"
+
+
+5. Considerações finais
+O projeto foi concluído com sucesso, atendendo todos os critérios técnicos solicitados: rotas REST, testes com cobertura, dockerização, e automação com CI/CD.
+Este documento complementa o README do projeto, que contém instruções detalhadas de instalação e uso.

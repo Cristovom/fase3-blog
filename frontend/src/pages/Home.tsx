@@ -29,7 +29,7 @@ export default function Home() {
       <EspacoLateral>
         <Title>Postagens</Title>
         <Input placeholder="Buscar por palavra-chave..." value={q} onChange={e => setQ(e.target.value)} />
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, margin: "20px 0px 30px"  }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 9, margin: "20px 0px 30px"  }}>
           {filtered.map(p => (
             <Card key={p._id}>
               <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>

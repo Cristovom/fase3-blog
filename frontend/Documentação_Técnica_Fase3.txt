@@ -1,0 +1,116 @@
+0- Resumo
+SPA em React (Vite) com styled-components, React Router, Axios e Context API.
+Perfis:
+Alunos: acessam Home (lista/busca) e leitura de post.
+Professores: fazem login e acessam área Admin (CRUD).
+Integra com a API (Express/Mongo) via VITE_API_BASE_URL.
+
+
+1- Arquitetura do Frontend
+React + Vite: build rápido, módulos ES.
+styled-components: CSS-in-JS, temas e componentes reutilizáveis.
+React Router: rotas públicas e privadas.
+Axios: client HTTP com interceptor para enviar Authorization: Bearer <token>.
+Context API: AuthContext gerencia token e user (armazenados no localStorage).
+
+Páginas:
+/ (Home: lista + busca)
+/post/:id (Leitura + botão Voltar)
+/login (Professores)
+/admin (Lista/ações)
+/posts/novo (Criar — com Cancelar)
+/posts/:id/editar (Editar — com Cancelar)
+
+
+2- Estrutura de Pastas (resumo)
+frontend/
+├── src/
+│   ├── components/        # Navbar, Footer, UI (Button, Card, etc.)
+│   ├── context/           # AuthContext.tsx
+│   ├── pages/             # Home, PostView, Login, Admin, PostCreate, PostEdit
+│   ├── services/          # api.ts, auth.ts, posts.ts
+│   ├── types/             # Post, Auth types
+│   ├── App.tsx            # Rotas
+│   └── main.tsx
+├── public/
+├── package.json
+└── Dockerfile
+
+
+3- Integração com o Back-end
+Env: frontend/.env
+VITE_API_BASE_URL=http://localhost:3000
+Axios (services/api.ts):
+baseURL = import.meta.env.VITE_API_BASE_URL
+Interceptor: anexa Authorization: Bearer ${localStorage.getItem("token")} quando existir.
+CORS: a API deve liberar http://localhost:5173.
+Rotas protegidas: ProtectedRoute redireciona para /login se não houver token.
+
+
+4- Execução (Dev)
+Pré-requisitos: Node 18+, API rodando em :3000.
+cd frontend
+npm install
+# conferir/ajustar .env
+npm run dev
+# App: http://localhost:5173
+
+
+5- Build / Produção
+# build
+npm run build
+npm run preview  # opcional para testar o build localmente
+O build gera dist/ (arquivos estáticos).
+Em Docker (Nginx):
+Dockerfile faz build e serve SPA (fallback try_files $uri /index.html).
+Exemplo de build Docker local:
+docker build -t blog-frontend \
+  --build-arg VITE_API_BASE_URL=http://localhost:3000 .
+docker run -p 5173:80 blog-frontend
+
+
+6- Fluxos-chave
+Login: POST /auth/login → salva { token, user } no localStorage, navega para /admin.
+CRUD (após login): POST/PUT/DELETE /posts (com Bearer), listagem atualiza via GET /posts.
+Voltar/Cancelar:
+PostView: botão “← Voltar” (history ou /).
+PostEdit/PostCreate: botão Cancelar volta ao /admin.
+
+
+7- Troubleshooting (rápido)
+“Network Error” no Axios: ver logs da API; se 500 no back, o front mostra Network Error.
+CORS bloqueado: conferir middleware cors() no back (origin: ['http://localhost:5173','http://127.0.0.1:5173']).
+401 nas rotas de escrita: token ausente/expirado → relogar; checar interceptor.
+Página em branco no npm run dev: confirmar VITE_API_BASE_URL e se a API está ouvindo em :3000.
+
+
+8- Docker Compose (stack completo)
+Serviço frontend exposto em 5173, API em 3000, Mongo em 27017.
+Em produção local (compose), o front pode usar VITE_API_BASE_URL=http://blog-api:3000 (nome do serviço na rede Docker).
+Subir tudo: docker compose up -d --build.
+
+
+9- CI/CD (resumo do pipeline)
+CI (Node): build/test do backend e build do frontend.
+CD (Docker): builda e publica as imagens frontend e backend no GHCR (ou Docker Hub).
+Workflows em .github/workflows/: ci.yml, docker-backend.yml, docker-frontend.yml.
+
+
+10- Exemplos úteis (via Front)
+Após login, localStorage deve conter token e user.
+Requests protegidos são enviados automaticamente com Authorization: Bearer <token>.
+(Exemplos de curl estão no doc do back; aqui o foco é a UI + integração.)
+
+
+11- Experiências e Desafios (front)
+Troca de Tailwind para styled-components por conflitos de PostCSS/ESM.
+Ajuste fino de CORS e montagem de rotas no back para evitar “Empty reply”.
+Interceptor de JWT no Axios e guarda de rotas (ProtectedRoute).
+Botões de Voltar/Cancelar melhorando a navegação.
+Dockerização do front com Nginx e build-arg para VITE_API_BASE_URL.
+
+
+12- Considerações Finais
+Frontend atende aos requisitos: responsivo, acessível o suficiente, simples de usar.
+Professores autenticados gerenciam posts; alunos consomem conteúdo.
+Projeto integrado ao back via Axios + JWT e pronto para rodar com Docker e CI/CD.

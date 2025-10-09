@@ -1,4 +1,4 @@
-name: Testes com cobertura
+name: CI — Backend Tests (coverage)
 
 on:
   push:
@@ -7,33 +7,41 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
+  backend-test:
     runs-on: ubuntu-latest
 
     services:
       mongo:
-        image: mongo
+        image: mongo:6
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
-          --health-interval 10s
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
+          --health-interval 5s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 20
 
     steps:
-      - name: 📥 Checkout do código
-        uses: actions/checkout@v3
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
 
-      - name: 🟢 Instalar Node.js
-        uses: actions/setup-node@v3
+      - name: 🟢 Node 18 + cache
+        uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
 
-      - name: 📦 Instalar dependências
-        run: npm install
+      - name: 📦 Install (backend)
+        working-directory: backend
+        run: npm ci
 
-      - name: ✅ Rodar testes com cobertura
-        run: npm test
+      - name: ✅ Test (with coverage)
+        working-directory: backend
         env:
-          MONGO_URI: mongodb://localhost:27017/fase3-fullstack
+          MONGO_URI: mongodb://127.0.0.1:27017/fase3-fullstack
+          JWT_SECRET: test-secret
+          TEACHER_EMAIL: prof@fiap.com
+          TEACHER_PASSWORD: 123456
+          CI: "true"
+        run: npm test -- --coverage

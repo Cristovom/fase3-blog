@@ -27,15 +27,15 @@ services:
       - ./backend:/app
       - /app/node_modules
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - VITE_API_BASE_URL=http://blog-api:3000
-    ports: ["5173:80"]
-    depends_on:
-      - blog-api
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #     args:
+  #       - VITE_API_BASE_URL=http://blog-api:3000
+  #   ports: ["5173:80"]
+  #   depends_on:
+  #     - blog-api
 
 volumes:
   mongo_data:

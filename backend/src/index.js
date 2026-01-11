@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const postRoutes = require('./routes/postRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 // Rotas (padrão 1: seu postRoutes já contém '/posts' internamente)
 app.use('/auth', authRoutes);
 app.use('/', postRoutes);
+app.use('/', userRoutes);
 
 // Handler global de erro (mantenha por último)
 app.use((err, req, res, next) => {
